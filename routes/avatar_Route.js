@@ -3,6 +3,6 @@ const router = express.Router();
 const avatarCtrl = require("../controllers/avatar_Ctrl");
 
 router.get("/random", avatarCtrl.random);
-router.get("/batch", avatarCtrl.batch);
+router.get("/batch/:nbr", avatarCtrl.batch);
 
 module.exports = router;

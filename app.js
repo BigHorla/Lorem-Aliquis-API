@@ -18,13 +18,9 @@ app.use(express.json());//Pour parser les requètes
 app.use("/img", express.static("img")); 
 
 //-----------------------------------------------------
-//ROUTES
-app.get('/home', (req, res) => {
-  res.sendFile(path.join(__dirname,"./index.html"))
-});
 //AVATAR ROUTES
 const avatarRoutes = require('./routes/avatar_Route')
-app.use('/avatar', avatarRoutes);
+app.use('/', avatarRoutes);
 
 //-----------------------------------------------------
 //Exports

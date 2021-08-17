@@ -4,6 +4,11 @@ const fs = require('file-system');
 const base64Img = require('base64-img');
 const path = require('path');
 
+let total = 0; //nbr of total avatars
+let count = 0; //count for ctrl the limit
+let bank = []; // avatars urls
+const limit = 100; //nbr of saved avatars in the api
+
 const rng = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -22,10 +27,6 @@ const decodeBase64Image = (dataString) => {
     return response;
 }
 
-let total = 0
-let count = 0;
-let bank = [];
-const limit = 100;
 
 fs.readdir("./img/", (err, files) => {
     if (err) throw err;
@@ -39,6 +40,7 @@ fs.readdir("./img/", (err, files) => {
 
 exports.random = (req, res, next) => {
     console.log("📋  La création d'un avatar est demandé 📜");
+    
     let elements = []
     let SkinColor = rng(1,6);
     let ShouldersType = rng(1,10);
@@ -68,17 +70,17 @@ exports.random = (req, res, next) => {
     const ears = "./assets/color/color_"+SkinColor+"/ears/ears_"+rng(1,10)+".png";
     elements.push(ears)
 
-    console.log(elements);
+    //console.log(elements);
 
     mergeImages(elements, {
         Canvas: Canvas,
         Image: Image
     })
     .then((b64) => {
-        
+       
         let avatar = decodeBase64Image(b64);
         let folder = "/img/";
-        let filename = "avatar_"+total+count+Date.now()+".png";
+        let filename = total+"D"+Date.now()+".png";
         let filePath = folder+filename;
 
         fs.writeFile("."+filePath, avatar.data, (err) => {
@@ -92,8 +94,7 @@ exports.random = (req, res, next) => {
                     count >= limit -1 ? count = 0 : count ++ ;
                 })
             }
-            
-            res.status(200).json({ imageUrl : "http://localhost:3000"+filePath})
+            res.status(200).sendFile(__dirname.split("controllers")[0]+filePath)
          });
 
          total++
@@ -106,6 +107,13 @@ exports.random = (req, res, next) => {
           });
     })
 }
+
 exports.batch = (req, res, next) => {
-    res.send({ batch : bank})
+  let nbr = req.params.nbr
+
+  if(nbr > limit){
+    res.send({message : `Max request : ${limit}`})
+  }
+  console.log(nbr)
+  res.send(bank.splice(0, nbr))
 }
